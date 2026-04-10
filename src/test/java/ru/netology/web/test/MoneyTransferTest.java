@@ -16,15 +16,15 @@ class MoneyTransferTest {
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
-        var cardsInfo = DataHelper.getCardsInfo();
-        var firstCardBalance = dashboardPage.getCardBalance(cardsInfo.getFirstCard().getTestId());
-        var secondCardBalance = dashboardPage.getCardBalance(cardsInfo.getSecondCard().getTestId());
-        var amount = (int) Math.round(secondCardBalance*0.1);
-        dashboardPage.transferMoneyTo(cardsInfo.getFirstCard().getTestId(),
-                cardsInfo.getSecondCard().getCardNumber(),
-                amount); // На первую карту переводим 10% от баланса на второй карте
-        var firstCardBalanceAfterTransfer = dashboardPage.getCardBalance(cardsInfo.getFirstCard().getTestId());
-        var secondCardBalanceAfterTransfer = dashboardPage.getCardBalance(cardsInfo.getSecondCard().getTestId());
+        var firstCard = DataHelper.getFirstCardInfo();
+        var secondCard = DataHelper.getSecondCardInfo();
+        var firstCardBalance = dashboardPage.getCardBalance(firstCard.getTestId());
+        var secondCardBalance = dashboardPage.getCardBalance(secondCard.getTestId());
+        var amount = (int) Math.round(secondCardBalance*0.1); //Берем 10% от изначальной суммы баланса
+        var transferPage = dashboardPage.pressTransferButton(firstCard.getTestId());
+        dashboardPage = transferPage.doValidTransfer(String.valueOf(amount),secondCard.getCardNumber()); // На первую карту переводим 10% от баланса на второй карте
+        var firstCardBalanceAfterTransfer = dashboardPage.getCardBalance(firstCard.getTestId());
+        var secondCardBalanceAfterTransfer = dashboardPage.getCardBalance(secondCard.getTestId());
         assertEquals(firstCardBalance + amount, firstCardBalanceAfterTransfer);
         assertEquals(secondCardBalance - amount, secondCardBalanceAfterTransfer);
     }
@@ -37,18 +37,11 @@ class MoneyTransferTest {
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         var dashboardPage = verificationPage.validVerify(verificationCode);
-        var cardsInfo = DataHelper.getCardsInfo();
-        var firstCardBalance = dashboardPage.getCardBalance(cardsInfo.getFirstCard().getTestId());
-        var secondCardBalance = dashboardPage.getCardBalance(cardsInfo.getSecondCard().getTestId());
+        var firstCard = DataHelper.getFirstCardInfo();
+        var secondCard = DataHelper.getSecondCardInfo();
+        var secondCardBalance = dashboardPage.getCardBalance(secondCard.getTestId());
         var amount = secondCardBalance+100; //делаем сумму больше, чем есть на балансе
-        dashboardPage.transferMoneyTo(cardsInfo.getFirstCard().getTestId(),
-                cardsInfo.getSecondCard().getCardNumber(),
-                amount); // На первую карту переводим сумму превышающую баланс второй карты
-        dashboardPage.getErrorMessage(); //ловим сообщение об ошибке
-        var firstCardBalanceAfterTransfer = dashboardPage.getCardBalance(cardsInfo.getFirstCard().getTestId());
-        var secondCardBalanceAfterTransfer = dashboardPage.getCardBalance(cardsInfo.getSecondCard().getTestId());
-        //балансы на картах не должны измениться
-        assertEquals(firstCardBalance, firstCardBalanceAfterTransfer);
-        assertEquals(secondCardBalance, secondCardBalanceAfterTransfer);
+        var transferPage = dashboardPage.pressTransferButton(firstCard.getTestId());
+        transferPage.doInvalidTransfer(String.valueOf(amount),secondCard.getCardNumber()); // На первую карту переводим сумму превышающую баланс второй карты
     }
 }
