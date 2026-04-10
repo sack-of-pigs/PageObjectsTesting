@@ -1,23 +1,31 @@
 package ru.netology.web.test;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.netology.web.data.DataHelper;
+import ru.netology.web.page.DashboardPage;
 import ru.netology.web.page.LoginPage;
+import ru.netology.web.page.VerificationPage;
 
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MoneyTransferTest {
+    public LoginPage loginPage = new LoginPage();
+    public DataHelper.AuthInfo authInfo = DataHelper.getAuthInfo();
+    public VerificationPage verificationPage = loginPage.validLogin(authInfo);
+    public DataHelper.VerificationCode verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+    public DashboardPage dashboardPage = verificationPage.validVerify(verificationCode);
+    public DataHelper.Card firstCard = DataHelper.getFirstCardInfo();
+    public DataHelper.Card secondCard = DataHelper.getSecondCardInfo();
+
+    @BeforeEach
+    void setup() {
+        open("http://localhost:9999");
+    }
+
     @Test
     void shouldTransferMoneyBetweenOwnCards() {
-        open("http://localhost:9999");
-        var loginPage = new LoginPage();
-        var authInfo = DataHelper.getAuthInfo();
-        var verificationPage = loginPage.validLogin(authInfo);
-        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-        var dashboardPage = verificationPage.validVerify(verificationCode);
-        var firstCard = DataHelper.getFirstCardInfo();
-        var secondCard = DataHelper.getSecondCardInfo();
         var firstCardBalance = dashboardPage.getCardBalance(firstCard.getTestId());
         var secondCardBalance = dashboardPage.getCardBalance(secondCard.getTestId());
         var amount = (int) Math.round(secondCardBalance*0.1); //Берем 10% от изначальной суммы баланса
@@ -31,14 +39,6 @@ class MoneyTransferTest {
 
     @Test
     void shouldNotTransferWhenAmountExceedsBalance() {
-        open("http://localhost:9999");
-        var loginPage = new LoginPage();
-        var authInfo = DataHelper.getAuthInfo();
-        var verificationPage = loginPage.validLogin(authInfo);
-        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-        var dashboardPage = verificationPage.validVerify(verificationCode);
-        var firstCard = DataHelper.getFirstCardInfo();
-        var secondCard = DataHelper.getSecondCardInfo();
         var secondCardBalance = dashboardPage.getCardBalance(secondCard.getTestId());
         var amount = secondCardBalance+100; //делаем сумму больше, чем есть на балансе
         var transferPage = dashboardPage.pressTransferButton(firstCard.getTestId());
