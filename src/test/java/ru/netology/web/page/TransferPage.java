@@ -20,17 +20,19 @@ public class TransferPage {
         errorMessage.should(Condition.text("Выполнена попытка перевода суммы, превышающей остаток на карте списания")).should(Condition.visible);
     }
 
-    public DashboardPage doValidTransfer(String amount, String cardNumber) {
+    public void doTransfer(String amount, String cardNumber) {
         transferAmountInput.setValue(amount);
         transferFromInput.setValue(cardNumber);
         transferButton.click();
+    }
+
+    public DashboardPage doValidTransfer(String amount, String cardNumber) {
+        doTransfer(amount, cardNumber);
         return new DashboardPage();
     }
 
     public void doInvalidTransfer(String amount, String cardNumber) {
-        transferAmountInput.setValue(amount);
-        transferFromInput.setValue(cardNumber);
-        transferButton.click();
+        doTransfer(amount, cardNumber);
         getErrorMessage();
     }
 }
