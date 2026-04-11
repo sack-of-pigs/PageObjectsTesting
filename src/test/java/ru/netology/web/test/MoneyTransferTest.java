@@ -11,7 +11,7 @@ import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MoneyTransferTest {
-    public LoginPage loginPage = new LoginPage();
+    public LoginPage loginPage;
     public DataHelper.AuthInfo authInfo;
     public VerificationPage verificationPage;
     public DataHelper.VerificationCode verificationCode;
@@ -28,6 +28,7 @@ class MoneyTransferTest {
 
     @Test
     void shouldTransferMoneyBetweenOwnCards() {
+        loginPage = new LoginPage();
         authInfo = DataHelper.getAuthInfo();
         verificationPage = loginPage.validLogin(authInfo);
         verificationCode = DataHelper.getVerificationCodeFor(authInfo);
@@ -47,6 +48,7 @@ class MoneyTransferTest {
 
     @Test
     void shouldNotTransferWhenAmountExceedsBalance() {
+        loginPage = new LoginPage();
         authInfo = DataHelper.getAuthInfo();
         verificationPage = loginPage.validLogin(authInfo);
         verificationCode = DataHelper.getVerificationCodeFor(authInfo);
