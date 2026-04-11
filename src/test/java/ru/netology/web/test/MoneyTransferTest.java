@@ -12,14 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MoneyTransferTest {
     public LoginPage loginPage = new LoginPage();
-    public DataHelper.AuthInfo authInfo = DataHelper.getAuthInfo();
-    public VerificationPage verificationPage = loginPage.validLogin(authInfo);
-    public DataHelper.VerificationCode verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-    public DashboardPage dashboardPage = verificationPage.validVerify(verificationCode);
-    public DataHelper.Card firstCard = DataHelper.getFirstCardInfo();
-    public DataHelper.Card secondCard = DataHelper.getSecondCardInfo();
-    public int firstCardBalance = dashboardPage.getCardBalance(firstCard.getTestId());
-    public int secondCardBalance = dashboardPage.getCardBalance(secondCard.getTestId());
+    public DataHelper.AuthInfo authInfo;
+    public VerificationPage verificationPage;
+    public DataHelper.VerificationCode verificationCode;
+    public DashboardPage dashboardPage;
+    public DataHelper.Card firstCard;
+    public DataHelper.Card secondCard;
+    public int firstCardBalance;
+    public int secondCardBalance;
 
     @BeforeEach
     void setup() {
@@ -28,6 +28,14 @@ class MoneyTransferTest {
 
     @Test
     void shouldTransferMoneyBetweenOwnCards() {
+        authInfo = DataHelper.getAuthInfo();
+        verificationPage = loginPage.validLogin(authInfo);
+        verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        dashboardPage = verificationPage.validVerify(verificationCode);
+        firstCard = DataHelper.getFirstCardInfo();
+        secondCard = DataHelper.getSecondCardInfo();
+        firstCardBalance = dashboardPage.getCardBalance(firstCard.getTestId());
+        secondCardBalance = dashboardPage.getCardBalance(secondCard.getTestId());
         var amount = (int) Math.round(secondCardBalance*0.1); //Берем 10% от изначальной суммы баланса
         var transferPage = dashboardPage.pressTransferButton(firstCard.getTestId());
         dashboardPage = transferPage.doValidTransfer(String.valueOf(amount),secondCard.getCardNumber()); // На первую карту переводим 10% от баланса на второй карте
@@ -39,6 +47,14 @@ class MoneyTransferTest {
 
     @Test
     void shouldNotTransferWhenAmountExceedsBalance() {
+        authInfo = DataHelper.getAuthInfo();
+        verificationPage = loginPage.validLogin(authInfo);
+        verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        dashboardPage = verificationPage.validVerify(verificationCode);
+        firstCard = DataHelper.getFirstCardInfo();
+        secondCard = DataHelper.getSecondCardInfo();
+        firstCardBalance = dashboardPage.getCardBalance(firstCard.getTestId());
+        secondCardBalance = dashboardPage.getCardBalance(secondCard.getTestId());
         var amount = secondCardBalance+100; //делаем сумму больше, чем есть на балансе
         var transferPage = dashboardPage.pressTransferButton(firstCard.getTestId());
         transferPage.doInvalidTransfer(String.valueOf(amount),secondCard.getCardNumber()); // На первую карту переводим сумму превышающую баланс второй карты
